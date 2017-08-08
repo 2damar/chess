@@ -6,6 +6,14 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+ChessController::ChessController()
+{
+	white_king.row = 7;
+	white_king.col = 4;
+	black_king.row = 0;
+	black_king.col = 4;
+}
+
 /**
  * Creates coordinates from row and column
  * @param r row
@@ -99,6 +107,103 @@ int ChessController::get_piece_steps(coord_t piece)
 }
 
 /**
+ * Finds if players own king will be in check after completed move
+ * 
+ * @param from location of the piece to be moved
+ * @param to destination
+ * @return false if the move is legal, otherwise true
+ */
+bool ChessController::king_checked(coord_t from, coord_t to)
+{
+	coord_t k;       // location of the king
+	char kc;			  // king color
+	char rook, bishop, knight;
+	bool result = false;
+	vector<coord_t> v;
+	vector<coord_t>::iterator it;
+	if(get_color(from) == WHITE) {
+		k = white_king;
+		kc = 'k';
+		rook = 'r';
+		bishop = 'b';
+		knight = 'n';
+	} else if(get_color(from) == BLACK) {
+		k = black_king;
+		kc = 'K';
+		rook = 'R';
+		bishop = 'B';
+		knight = 'N';
+	} else {
+		return true;
+	}
+
+	// simulate move
+	char tmp = board[to.row][to.col];
+	board[to.row][to.col] = board[from.row][from.col];
+	board[from.row][from.col] = EMPTY;
+	
+	char p;
+	// rooks + queen
+	board[k.row][k.col] = rook;
+	v = piece_moves(k);
+	for(it = v.begin(); it != v.end(); it++) {
+		p = board[(*it).row][(*it).col];
+		if(p == 'r' || p == 'R' || p == 'q' || p == 'Q') {
+			board[k.row][k.col] = kc;
+			result = true;
+		}
+	}
+	
+	// bishops + queen
+	board[k.row][k.col] = bishop;
+	v = piece_moves(k);
+	for(it = v.begin(); it != v.end(); it++) {
+		p = board[(*it).row][(*it).col];
+		if(p == 'b' || p == 'B' || p == 'q' || p == 'Q') {
+			board[k.row][k.col] = kc;
+			result = true;
+		}
+	}
+
+	// knights	
+	board[k.row][k.col] = knight;
+	v = piece_moves(k);
+	for(it = v.begin(); it != v.end(); it++) {
+		p = board[(*it).row][(*it).col];
+		if(p == 'n' || p == 'N') {
+			board[k.row][k.col] = kc;
+			result = true;
+		}
+	}
+
+	board[k.row][k.col] = kc;
+	// pawns
+	if((kc = 'K') && (k.row - 1 > 0)) {
+		if(((k.col - 1 >= 0) && (board[k.row - 1][k.col - 1] == 'p')) ||
+			((k.col + 1 < COLUMNS) && (board[k.row - 1][k.col + 1] == 'p')))
+			result = true;
+	} else if(k.row + 1 < ROWS) {
+		if(((k.col - 1 >= 0) && (board[k.row + 1][k.col - 1] == 'P')) ||
+			((k.col + 1 < COLUMNS) && (board[k.row + 1][k.col + 1] == 'P')))
+			result = true;
+	}
+
+	// oponents king
+	v = piece_moves(k);
+	for(it = v.begin(); it != v.end(); it++) {
+		p = board[(*it).row][(*it).col];
+		if(p == 'k' || 'K')
+			result = true;
+	}
+
+	// unsimulate move
+	board[from.row][from.col] = board[to.row][to.col];
+	board[to.row][to.col] = tmp;
+
+	return result;
+}
+
+/**
  * Finds all possible move for a piece
  *
  * @param piece piece's location on the board
@@ -121,10 +226,11 @@ vector<coord_t> ChessController::piece_moves(coord_t piece)
 
 			while((r < ROWS) && (r >= 0) && (c < COLUMNS) && (c >= 0) && (ex <= steps)) {
 				if(board[r][c] != EMPTY) {
-					if(!same_color(piece, make_coord(r, c))) 
+					if(!same_color(piece, make_coord(r, c)))
 						vc.push_back(make_coord(r, c));
 					break;
 				}
+
 				vc.push_back(make_coord(r, c));
 				++ex;
 				r = piece.row + ex*directions[i].row;
@@ -166,7 +272,7 @@ bool ChessController::legal_move(coord_t from, coord_t to)
  */
 bool ChessController::make_move(coord_t from, coord_t to)
 {	
-	if(!legal_move(from, to))
+	if(!legal_move(from, to) && !king_checked(from, to))
 		return false;
 
 	move_t m = { board[from.row][from.col],
