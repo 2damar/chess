@@ -3,23 +3,47 @@
 
 #define ROWS 8
 #define COLUMNS 8
-#define UPLEFT 0
-#define UP 1
-#define UPRIGHT 2
-#define LEFT 3
-#define NOMOVE 4
-#define RIGHT 5
-#define DOWNLEFT 6
-#define DOWN 7
-#define DOWNRIGHT 8
-#define NM1 9
-#define NM2 10
-#define NM3 11
-#define NM4 12
-#define NM5 13
-#define NM6 14
-#define NM7 15
-#define NM8 16
+#define UPRIGHT (1 << 0)
+#define UP (1 << 1)
+#define UPLEFT (1 << 2)
+#define LEFT (1 << 3)
+#define RIGHT (1 << 4)
+#define DOWNLEFT (1 << 5)
+#define DOWN (1 << 6)
+#define DOWNRIGHT (1 << 7)
+#define NM1 (1 << 8)
+#define NM2 (1 << 9)
+#define NM3 (1 << 10)
+#define NM4 (1 << 11)
+#define NM5 (1 << 12)
+#define NM6 (1 << 13)
+#define NM7 (1 << 14)
+#define NM8 (1 << 15)
+
+#define KINGDIRECTIONS (UPLEFT | UP | UPRIGHT | LEFT | RIGHT | DOWNLEFT | DOWN | DOWNRIGHT)
+#define QUEENDIRECTIONS (UPLEFT | UP | UPRIGHT | LEFT | RIGHT | DOWNLEFT | DOWN | DOWNRIGHT)
+#define ROOKDIRECTIONS (UP | DOWN | LEFT | RIGHT)
+#define KNIGHTDIRESTIONS (NM1 | NM2 | NM3 | NM4 | NM5 | NM6 | NM7 | NM8)
+#define BISHOPDIRECTIONS (UPRIGHT | UPLEFT | DOWNRIGHT | DOWNLEFT)
+#define BLACKPAWNDIRECTIONS (DOWN)
+#define WHITEPAWNDIRECTIONS (UP)
+
+#define UPRIGHTINDEX 0
+#define UPINDEX 1
+#define UPLEFTINDEX 2
+#define LEFTINDEX 3
+#define RIGHTINDEX 4
+#define DOWNLEFINDEX 5
+#define DOWNINDEX 6
+#define DOWNRIGHTINDEX 7
+#define NM1INDEX 8
+#define NM2INDEX 9
+#define NM3INDEX 10
+#define NM4INDEX 11
+#define NM5INDEX 12
+#define NM6INDEX 13
+#define NM7INDEX 14
+#define NM8INDEX 15
 
 #define EMPTY '0'
 #define BLACK 1
