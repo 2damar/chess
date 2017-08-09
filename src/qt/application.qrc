@@ -1,0 +1,16 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+   <file>../../png/p.png</file>
+   <file>../../png/P.png</file>
+   <file>../../png/k.png</file>
+   <file>../../png/K.png</file>
+   <file>../../png/q.png</file>
+   <file>../../png/Q.png</file>
+   <file>../../png/r.png</file>
+   <file>../../png/R.png</file>
+   <file>../../png/b.png</file>
+   <file>../../png/B.png</file>
+   <file>../../png/n.png</file>
+   <file>../../png/N.png</file>
+</qresource>
+</RCC>
