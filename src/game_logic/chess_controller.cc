@@ -6,26 +6,9 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-ChessController::ChessController()
-{
-	white_king.row = 7;
-	white_king.col = 4;
-	black_king.row = 0;
-	black_king.col = 4;
-}
+ChessController::ChessController() : white_king(60), black_king(4)
+{}
 
-/**
- * Creates coordinates from row and column
- * @param r row
- * @param c column
- * @return coordinates
- */
-coord_t ChessController::make_coord(int r, int c)
-{
-	coord_t ct = {r, c};
-	return ct;
-}
- 
 /**
  * Returns color of the piece
  *
@@ -34,9 +17,9 @@ coord_t ChessController::make_coord(int r, int c)
  */
 int ChessController::get_color(coord_t c)
 {
-	if(white_pieces.find(board[c.row][c.col]) != string::npos)
+	if(white_pieces.find(board[c]) != string::npos)
 		return WHITE;
-	else if(black_pieces.find(board[c.row][c.col]) != string::npos)
+	else if(black_pieces.find(board[c]) != string::npos)
 		return BLACK;
 	
 	return EMPTY;
@@ -63,9 +46,9 @@ bool ChessController::same_color(coord_t p1, coord_t p2)
  * @param location of the piece
  * @return flags with possible directions
  */
-unsigned ChessController::get_piece_directions(coord_t p)
+unsigned ChessController::get_piece_directions(coord_t c)
 {
-	switch(board[p.row][p.col]) {
+	switch(board[c]) {
 		case 'k':
 		case 'K': return KINGDIRECTIONS;
 		case 'q':
@@ -90,17 +73,17 @@ unsigned ChessController::get_piece_directions(coord_t p)
  * @param p location of the piece
  * @return distance
  */
-int ChessController::get_piece_steps(coord_t piece)
+int ChessController::get_piece_steps(coord_t c)
 {
-	char p = board[piece.row][piece.col];
+	char p = board[c];
 	// kings and knights
 	if(p == 'k' || p == 'K' || p == 'n' || p == 'N')
 		return 1;
 	
 	// pawns 
-	if(((p == 'p') && (piece.row == 1)) || ((p == 'P') && (piece.row == 6)))
+	if(((p == 'p') && (c / ROWS == 1)) || ((p == 'P') && (c / ROWS == 6)))
 		return 2;
-	else 
+	else if((p == 'p') || (p == 'P')) 
 		return 1;
 
 	return ROWS;
@@ -113,10 +96,11 @@ int ChessController::get_piece_steps(coord_t piece)
  * @param to destination
  * @return false if the move is legal, otherwise true
  */
+/*
 bool ChessController::king_checked(coord_t from, coord_t to)
 {
 	coord_t k;       // location of the king
-	char kc;			  // king color
+	char kc;			  // oponents king color
 	char rook, bishop, knight;
 	bool result = false;
 	vector<coord_t> v;
@@ -202,6 +186,19 @@ bool ChessController::king_checked(coord_t from, coord_t to)
 
 	return result;
 }
+*/
+
+bool ChessController::out_of_bounds(coord_t from, coord_t to)
+{
+	if((to < 0) && (to >= ROWS*COLUMNS))
+		return true;
+
+	if(((from % COLUMNS == 7) && (to % COLUMNS == 0)) ||
+		((from % COLUMNS == 0) && (to % COLUMNS == 7)))
+		return true;
+
+	return false;
+}
 
 /**
  * Finds all possible move for a piece
@@ -220,21 +217,23 @@ vector<coord_t> ChessController::piece_moves(coord_t piece)
 	for(int i = 0; i < 16; i++) {
 		if((piece_directions & (1 << i)) != 0) {
 			
-			int r = piece.row + directions[i].row;
-			int c = piece.col + directions[i].col;
-			int ex = 1;
+			if(out_of_bounds(piece, piece + directions[i]))
+				continue;
 
-			while((r < ROWS) && (r >= 0) && (c < COLUMNS) && (c >= 0) && (ex <= steps)) {
-				if(board[r][c] != EMPTY) {
-					if(!same_color(piece, make_coord(r, c)))
-						vc.push_back(make_coord(r, c));
+			coord_t c = piece + directions[i];
+			int ex = 1;
+			std::cout<< "steps: " << steps << std::endl;
+
+			while((!out_of_bounds(piece + (ex-1)*directions[i], c)) && (ex <= steps)) {
+				if(board[c] != EMPTY) {
+					if(!same_color(piece, c))
+						vc.push_back(c);
 					break;
 				}
 
-				vc.push_back(make_coord(r, c));
+				vc.push_back(c);
 				++ex;
-				r = piece.row + ex*directions[i].row;
-				c = piece.col + ex*directions[i].col;
+				c = piece + ex*directions[i];
 			}
 		}
 	}
@@ -253,7 +252,7 @@ bool ChessController::legal_move(coord_t from, coord_t to)
 	vector<coord_t>::iterator it;
 	for(it = moves.begin(); it != moves.end(); it++)
 	{
-		if(((*it).row == to.row) && ((*it).col == to.col))
+		if((*it) == to)
 			break;
 	}
 
@@ -272,16 +271,16 @@ bool ChessController::legal_move(coord_t from, coord_t to)
  */
 bool ChessController::make_move(coord_t from, coord_t to)
 {	
-	if(!legal_move(from, to) && !king_checked(from, to))
+	if(!legal_move(from, to)) // && !king_checked(from, to))
 		return false;
 
-	move_t m = { board[from.row][from.col],
-					 board[to.row][to.col],
+	move_t m = { board[from],
+					 board[to],
 					 from,
 					 to };
 	
-	board[to.row][to.col] = board[from.row][from.col];
-	board[from.row][from.col] = EMPTY;
+	board[to] = board[from];
+	board[from] = EMPTY;
 	game_moves.push_back(m);
 	return true;
 }
@@ -296,8 +295,8 @@ int ChessController::undo_move()
 		return -1;
 
 	move_t m = game_moves.back();
-	board[m.from.row][m.from.col] = m.piece_from;
-	board[m.to.row][m.to.col] = m.piece_to;
+	board[m.from] = m.piece_from;
+	board[m.to] = m.piece_to;
 
 	game_moves.pop_back();
 	return 1;
@@ -307,7 +306,7 @@ void ChessController::print_board()
 {
 	for(int i = 0; i < ROWS; i++) {
 		for(int j = 0; j < COLUMNS; j++) 
-			cout << "|" << board[i][j];
+			cout << "|" << board[i*8 + j];
 		cout << "|" << endl;
 	}
 }

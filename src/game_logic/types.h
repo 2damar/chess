@@ -45,16 +45,14 @@
 #define NM7INDEX 14
 #define NM8INDEX 15
 
+#define MAXDIRECTIONS 16
+
 #define EMPTY '0'
 #define BLACK 1
 #define WHITE 2
 
 
-typedef struct coord {
-	int row;
-	int col;
-} coord_t;
-
+typedef int coord_t;
 
 
 #endif

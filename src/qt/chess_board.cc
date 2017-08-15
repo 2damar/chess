@@ -5,30 +5,30 @@
 
 static const QSize field_size(60,60);
 
-ChessBoard::ChessBoard()
+
+
+ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
 {
-	QLabel* lbl;
-	QPixmap field(field_size);
+	Field* field;
+	click = 0;
 	std::string s;
 	QGridLayout* layout = new QGridLayout;
 	layout->setSpacing(0);
 	for(int i = 0; i < 8; i++)
 		for(int j = 0; j < 8; j++) {
-			s = board[i][j];
-			lbl = new QLabel();
-			fields.push_back(lbl);
-			lbl->setFixedSize(field_size);
+			s = board[8*i + j];
+			field = new Field(8*i + j);
+			connect(field, SIGNAL(clicked()), this, SLOT(field_clicked()));
+			fields.push_back(field);
+			field->setFixedSize(field_size);
 			if(((i % 2 == 0) && (j % 2 == 0)) ||
 				((i % 2 == 1) && (j % 2 == 1))) {
-				lbl->setStyleSheet("QLabel { background-color : white; } ");
-				field.fill(Qt::white);
+				field->setStyleSheet("QLabel { background-color : white; } ");
 			} else {
-				lbl->setStyleSheet("QLabel { background-color : darkGray; } ");
-				field.fill(Qt::darkGray);
+				field->setStyleSheet("QLabel { background-color : darkGray; } ");
 			} 
 
-			lbl->setPixmap(field);
-			layout->addWidget(lbl, i, j);
+			layout->addWidget(field, i, j);
 		 
 		}
 
@@ -37,16 +37,66 @@ ChessBoard::ChessBoard()
 	
 void ChessBoard::set_pieces()
 {
-	QPixmap field(field_size);
+	QPixmap piece_pic(field_size);
 	std::string s;
 	for(int i = 0; i < 8; i++)
 		for(int j = 0; j < 8; j++) {
-			s = board[i][j];
+			s = board[i*8 + j];
 			if(s != "0") {
 				s = ":/png/" + s + ".png";
-				field.load(s.c_str());
-				fields[i*8 + j]->setPixmap(field);
+				piece_pic.load(s.c_str());
+				fields[i*8 + j]->setPixmap(piece_pic);
 			}
 				
 		}
 }
+
+void ChessBoard::field_clicked() 
+{	
+	static int from = -1;
+	Field* f = qobject_cast<Field*>(sender());
+	if((from == -1) && (board[f->get_coord()] != EMPTY)) {
+		from = f->get_coord();
+	} else if(from != -1) {
+		move_piece(from, f->get_coord());
+		from = -1;
+	}
+	
+
+//	const QPixmap* p;
+//	f->setStyleSheet("QLabel { background-color : yellow; } ");
+//	if(click % 2 == 0) {
+//		p = f->pixmap();
+	//	f->clear();
+//		click++;
+//	} else {
+//		f->clear();
+//		f->setPixmap(*p);
+//	}
+	
+}
+
+bool ChessBoard::move_piece(int from, int to)
+{	
+	QPixmap piece_pic(field_size);
+	std::string p;
+
+	if(chess_controller.make_move(from, to)) {
+		fields[from]->clear();
+		p = board[to];
+		p = ":/png/" + p + ".png";
+		piece_pic.load(p.c_str());
+		fields[to]->setPixmap(piece_pic);
+		return true;
+	}
+	
+	return false;
+}
+	
+
+
+
+
+
+
+

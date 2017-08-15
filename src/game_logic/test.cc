@@ -8,8 +8,8 @@ int main()
 {
 	ChessController c;
 
-	coord_t f = {6, 4};
-	coord_t t = {5, 4};
+	coord_t f = 52;
+	coord_t t = 44;
 
 	c.print_board();
 	c.make_move(f, t);

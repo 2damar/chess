@@ -5,7 +5,7 @@
 #include <vector>
 #include "types.h"
 
-extern char board[][8];
+extern char board[ROWS*COLUMNS];
 extern coord_t directions[];
 
 typedef struct move {
@@ -27,7 +27,8 @@ class ChessController {
 	unsigned get_piece_directions(coord_t p);
 	int get_piece_steps(coord_t piece);
 	bool legal_move(coord_t from, coord_t to);
-	bool king_checked(coord_t from, coord_t to);
+//	bool king_checked(coord_t from, coord_t to);
+	bool out_of_bounds(coord_t from, coord_t to);
 
 public:
 	ChessController();
