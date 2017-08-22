@@ -52,7 +52,10 @@
 #define WHITE 2
 
 
-typedef int coord_t;
+typedef struct coord {
+	int row;
+	int col;
+} coord_t;
 
 
 #endif

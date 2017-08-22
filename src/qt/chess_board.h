@@ -4,10 +4,10 @@
 #include <QFrame>
 #include <QWidget>
 #include "../game_logic/types.h"
-#include "../game_logic/chess_controller.h"
+#include "../game_logic/board_controller.h"
 #include "field.h"
 
-extern char board[ROWS*COLUMNS];
+//extern char board[ROWS*COLUMNS];
 
 class ChessBoard : public QWidget {
 	Q_OBJECT
@@ -22,7 +22,7 @@ private slots:
 
 private:
 	QVector<Field*> fields;
-	ChessController chess_controller;
+	BoardController board_controller;
 	bool move_piece(int from, int to);
 	int click;
 };
