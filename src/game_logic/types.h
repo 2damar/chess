@@ -51,6 +51,12 @@
 #define BLACK 1
 #define WHITE 2
 
+#define ILLEGALMOVE 0
+#define LEGALMOVE 1
+#define CHECK 2
+#define MATE 3
+#define DRAW 4
+
 
 typedef struct coord {
 	int row;

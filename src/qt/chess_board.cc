@@ -1,5 +1,6 @@
 #include <QGridLayout>
 #include "chess_board.h"
+#include <iostream>
 
 QSize field_size(60,60);
 
@@ -63,15 +64,37 @@ bool ChessBoard::move_piece(int from, int to)
 	QPixmap piece_pic(field_size);
 	std::string p;
 
-	if(board_controller.make_move(from, to)) {
+	int move = board_controller.make_move(from, to);
+	if(move != ILLEGALMOVE) {
 		fields[from]->clear();
 		p = board_controller.get_field(to);
 		p = ":/png/" + p + ".png";
 		piece_pic.load(p.c_str());
 		fields[to]->setPixmap(piece_pic);
-		return true;
 	}
-	
+
+	switch(move) {
+		case LEGALMOVE:
+			std::cout << "LEGAL" << std::endl;
+			return true;	
+		case CHECK:
+			std::cout << "CHECK" << std::endl;
+			return true;
+		case MATE:
+			std::cout << "MATE" << std::endl;
+			return true;
+		case DRAW:
+			std::cout << "DRAW" << std::endl;
+			return true;
+		case ILLEGALMOVE:
+			std::cout << "ILLEGALMOVE" << std::endl;
+			break;
+		default:
+			std::cout << "SOMETHING WRONG!!!" << std::endl;
+			break;
+	}
+
+
 	return false;
 }
 	

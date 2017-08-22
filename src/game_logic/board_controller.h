@@ -3,13 +3,14 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include "types.h"
 
 typedef struct move {
 	char piece_from;
 	char piece_to;
-	coord_t from;
-	coord_t to;
+	int from;
+	int to;
 } move_t;
 
 class BoardController {
@@ -23,15 +24,15 @@ class BoardController {
 		{1, -2},  {2, -1}, {2, 1}, {1, 2}  
 	};
 	
-	char board[ROWS][COLUMNS];
-	coord_t white_king;
-	coord_t black_king;
+	std::string board;
+	int white_king;
+	int black_king;
 
 	std::vector<move_t> game_moves;
-	coord_t make_coord(int r, int c);
-	unsigned get_piece_directions(coord_t p);
-	int get_piece_steps(coord_t piece);
-	bool legal_move(coord_t from, coord_t to);
+	unsigned get_piece_directions(int p);
+	int get_piece_steps(int piece);
+	bool legal_move(int from, int to);
+	bool try_move(int from, int to);
 	bool king_checked(int color);
 	bool out_of_bounds(coord_t c);
 
@@ -41,11 +42,12 @@ public:
 	void set_pieces(std::string b = "");
 	
 	char get_field(int c);
-	int get_color(coord_t c);
-	bool same_color(coord_t p1, coord_t p2);
-	std::vector<coord_t> covered_fields(int color);
-	std::vector<coord_t> piece_moves(coord_t piece);
-	bool make_move(int from, int to);
+	int get_color(int c);
+	bool same_color(int p1, int p2);
+	std::set<int> covered_fields(int color);
+	std::vector<move_t> all_moves(int color);
+	std::vector<int> piece_moves(int piece);
+	int make_move(int from, int to);
 	int undo_move();
 	void print_board();
 

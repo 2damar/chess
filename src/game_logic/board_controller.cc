@@ -5,6 +5,7 @@ using std::string;
 using std::vector;
 using std::cout;
 using std::endl;
+using std::set;
 
 /**
  * Constructor
@@ -21,9 +22,7 @@ BoardController::BoardController()
  */
 void BoardController::clear_board()
 {
-	for(int r = 0; r < ROWS; r++)
-		for(int c = 0; c < COLUMNS; c++)
-			board[r][c] = EMPTY;
+	board.assign(64, '0');
 }
 
 /**
@@ -33,34 +32,13 @@ void BoardController::clear_board()
  */
 void BoardController::set_pieces(string b)
 {
-	if(b.empty() || b.size() != 64) {
-		for(int c = 0; c < COLUMNS; c++) { //pawns
-			board[1][c] = 'p';
-			board[6][c] = 'P';
-		}
+	if(b.size() != 64) 
+		board = "rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR";
+	else 
+		board = b;
 
-		board[0][0] = board[0][7] = 'r'; // rooks
-		board[7][0] = board[7][7] = 'R'; 
-		board[0][1] = board[0][6] = 'n'; // knights
-		board[7][1] = board[7][6] = 'N';
-		board[0][2] = board[0][5] = 'b'; // boardishops
-		board[7][2] = board[7][5] = 'B';
-		board[0][3] = 'q'; // queens
-		board[7][3] = 'Q';
-		board[0][4] = 'k'; // kings
-		black_king = {0, 4};
-		board[7][4] = 'K';
-		white_king = {7, 4};
-	} else {
-		for(int r = 0; r < ROWS; r++)
-			for(int c = 0; c < COLUMNS; c++) {
-				board[r][c] = b[8*r + c];
-				if(board[r][c] == 'k')
-					black_king = {r, c};
-				else if(board[r][c] == 'K')
-					white_king = {r, c};
-			}
-	}
+	white_king = board.find('K');
+	black_king = board.find('k');
 }
 		
 
@@ -72,7 +50,7 @@ void BoardController::set_pieces(string b)
  */
 char BoardController::get_field(int c)
 {
-	return board[c/8][c%8];
+	return board[c];
 }
 
 /**
@@ -81,13 +59,13 @@ char BoardController::get_field(int c)
  * @param c location of the piece
  * @return color of the piece, or EMPTY, if the field is empty
  */
-int BoardController::get_color(coord_t c)
+int BoardController::get_color(int c)
 {
 	string black("rnbqkp");
 	string white("RNBQKP");
-	if(white.find(board[c.row][c.col]) != string::npos)
+	if(white.find(board[c]) != string::npos)
 		return WHITE;
-	else if(black.find(board[c.row][c.col]) != string::npos)
+	else if(black.find(board[c]) != string::npos)
 		return BLACK;
 	
 	return EMPTY;
@@ -100,7 +78,7 @@ int BoardController::get_color(coord_t c)
  * @param p2 second piece
  * @return true if pieces have the same color, otherwise false
  */
-bool BoardController::same_color(coord_t p1, coord_t p2)
+bool BoardController::same_color(int p1, int p2)
 {
 	if(get_color(p1) != get_color(p2))
 		return false;
@@ -111,12 +89,12 @@ bool BoardController::same_color(coord_t p1, coord_t p2)
 /**
  * Returns all legal directions in which piece can move
  * 
- * @param location of the piece
+ * @param c position of the piece
  * @return flags with possible directions
  */
-unsigned BoardController::get_piece_directions(coord_t c)
+unsigned BoardController::get_piece_directions(int c)
 {
-	switch(board[c.row][c.col]) {
+	switch(board[c]) {
 		case 'k':
 		case 'K': return KINGDIRECTIONS;
 		case 'q':
@@ -141,15 +119,15 @@ unsigned BoardController::get_piece_directions(coord_t c)
  * @param p location of the piece
  * @return distance
  */
-int BoardController::get_piece_steps(coord_t c)
+int BoardController::get_piece_steps(int c)
 {
-	char p = board[c.row][c.col];
+	char p = board[c];
 	// kings and knights
 	if(p == 'k' || p == 'K' || p == 'n' || p == 'N')
 		return 1;
 	
 	// pawns 
-	if(((p == 'p') && (c.row == 1)) || ((p == 'P') && (c.row == 6)))
+	if(((p == 'p') && (c / ROWS == 1)) || ((p == 'P') && (c / ROWS == 6)))
 		return 2;
 	else if((p == 'p') || (p == 'P')) 
 		return 1;
@@ -165,7 +143,7 @@ int BoardController::get_piece_steps(coord_t c)
  */
 bool BoardController::king_checked(int color)
 {
-	coord_t king;
+	int king;
 	int oponent_color;
 	if(color == WHITE) {
 		king = white_king;
@@ -175,12 +153,8 @@ bool BoardController::king_checked(int color)
 		oponent_color = WHITE;
 	}
 
-	vector<coord_t> attack = covered_fields(oponent_color);
-	vector<coord_t>::iterator it; 
-	for(it = attack.begin(); it != attack.end(); it++) 
-		if(((*it).row == king.row) && ((*it).col == king.col))
-			break;
-	
+	set<int> attack = covered_fields(oponent_color);
+	set<int>::iterator it = attack.find(king); 
 	if(it != attack.end())
 		return true;
 
@@ -210,55 +184,61 @@ bool BoardController::out_of_bounds(coord_t c)
  * @return vector of all the possible moves
  * @TODO enpasant, casting
  */
-vector<coord_t> BoardController::piece_moves(coord_t piece) 
+vector<int> BoardController::piece_moves(int piece) 
 {
-	vector<coord_t> vc;
+	vector<int> vc;
 	unsigned piece_directions = get_piece_directions(piece);
 	int steps = get_piece_steps(piece);
+	int dest;
 
 	for(int i = 0; i < 16; i++) {
 		if((piece_directions & (1 << i)) != 0) {
 			
 			coord_t c;
-			c.row = piece.row + directions[i].row;
-			c.col = piece.col + directions[i].col;
+			c.row = (piece / ROWS) + directions[i].row;
+			c.col = (piece % ROWS) + directions[i].col;
 			int ex = 1;
 
 			while((!out_of_bounds(c)) && (ex <= steps)) {
-				if(board[c.row][c.col] != EMPTY) {
-					if(!same_color(piece, c))
-						vc.push_back(c);
+				dest = 8*c.row + c.col;
+				if(board[dest] != EMPTY) {
+					if(!same_color(piece, dest) && (board[piece] != 'p') && (board[piece] != 'P'))
+						vc.push_back(dest);
 					break;
 				}
 
-				vc.push_back(c);
+				vc.push_back(dest);
 				++ex;
-				c.row = piece.row + ex*directions[i].row;
-				c.col = piece.col + ex*directions[i].col;
+				c.row = (piece / ROWS) + ex*directions[i].row;
+				c.col = (piece % ROWS) + ex*directions[i].col;
 			}
 		}
 	}
 
 	// pawn attack
 	coord_t pa;
-	if(board[piece.row][piece.col] == 'p') {
-		pa.row = piece.row + 1;
-		pa.col = piece.col - 1;
-		if(!out_of_bounds(pa) && !same_color(piece, pa) && board[pa.row][pa.col] != EMPTY) 
-			vc.push_back(pa);
-		pa.col = piece.col + 1;
-		if(!out_of_bounds(pa) && !same_color(piece, pa) && board[pa.row][pa.col] != EMPTY)
-			vc.push_back(pa);
+	if(board[piece] == 'p') {
+		pa.row = (piece / ROWS) + 1;
+		pa.col = (piece % ROWS) - 1;
+		dest = 8*pa.row + pa.col;
+		if(!out_of_bounds(pa) && !same_color(piece, dest) && board[dest] != EMPTY) 
+			vc.push_back(dest);
+		pa.col = (piece % ROWS) + 1;
+		dest = 8*pa.row + pa.col;
+		if(!out_of_bounds(pa) && !same_color(piece, dest) && board[dest] != EMPTY)
+			vc.push_back(dest);
 	}
 
-	if(board[piece.row][piece.col] == 'P') {
-		pa.row = piece.row - 1;
-		pa.col = piece.col - 1;
-		if(!out_of_bounds(pa) && !same_color(piece, pa) && board[pa.row][pa.col] != EMPTY)
-			vc.push_back(pa);
-		pa.col = piece.col + 1;
-		if(!out_of_bounds(pa) && !same_color(piece, pa) && board[pa.row][pa.col] != EMPTY)
-			vc.push_back(pa);
+	if(board[piece] == 'P') {
+		pa.row = (piece / ROWS) - 1;
+		pa.col = (piece % ROWS) - 1;
+		dest = 8*pa.row + pa.col;
+		if(!out_of_bounds(pa) && !same_color(piece, dest) && board[dest] != EMPTY)
+			vc.push_back(dest);
+		pa.col = (piece % ROWS) + 1;
+		dest = 8*pa.row + pa.col;
+		if(!out_of_bounds(pa) && !same_color(piece, dest) && board[dest] != EMPTY)
+			vc.push_back(dest);
 	}
 
 	
@@ -271,84 +251,142 @@ vector<coord_t> BoardController::piece_moves(coord_t piece)
  * @param color color of the players pieces
  * @return vector of covered fields
  */
-vector<coord_t> BoardController::covered_fields(int color)
+set<int> BoardController::covered_fields(int color)
 {
-	vector<coord_t> cf;
-	vector<coord_t> pm;
+	set<int> cf;
+	vector<int> pm;
 	string pieces = (color == WHITE) ? "RNBQKP" : "rnbqkp";
-	for(int i = 0; i < ROWS; i++)
-		for(int j = 0; j < COLUMNS; j++) {
-			if(pieces.find(board[i][j]) != string::npos) {
-				pm = piece_moves(make_coord(i, j));
-				for(vector<coord_t>::iterator it = pm.begin(); it != pm.end(); it++)
-					cf.push_back(*it);
-			}
+	for(int i = 0; i < ROWS*COLUMNS; i++)
+		if(pieces.find(board[i]) != string::npos) {
+			pm = piece_moves(i);
+			for(vector<int>::iterator it = pm.begin(); it != pm.end(); it++)
+					cf.insert(*it);
+			
 		}
 	
 	return cf;
 }
 
 /**
+ * Calculates all the possible moves for the player
+ *
+ * @param color color of the players pieces
+ * @return all possible moves
+ */
+vector<move_t> BoardController::all_moves(int color)
+{
+	vector<move_t> am;
+	vector<int> pm;
+	string pieces = (color == WHITE) ? "RNBQKP" : "rnbqkp";
+	for(int i = 0; i < ROWS * COLUMNS; i++) {
+		if(pieces.find(board[i]) != string::npos) {
+			pm = piece_moves(i);
+			for(vector<int>::iterator it = pm.begin(); it != pm.end(); it++) {
+				if(try_move(i, *it)) 
+					am.push_back({board[i], board[*it], i, *it});
+			}
+		}
+	}
+
+	return am;
+}
+
+/**
+ * Simulates the move and finds out if it is possible to make it
+ * 
+ * @param from starting position
+ * @param to destination
+ * @return true if move is possible, otherwise false
+ */
+bool BoardController::try_move(int from, int to)
+{
+	if(!legal_move(from, to))
+		return false;
+	
+	//simulate the move and find out if the king will be in check
+	int kc = (get_color(from) == WHITE) ? WHITE : BLACK;
+	char to_piece = board[to];
+	board[to] = board[from];
+	board[from] = EMPTY;
+	if(board[to] == 'k')
+		black_king = to;
+	else if(board[to] == 'K')
+		white_king = to;
+	
+	bool result = !king_checked(kc);
+	board[from] = board[to];
+	board[to] = to_piece;
+	if(board[from] == 'k')
+		black_king = from;
+	else if(board[from] == 'K')
+		white_king = from;
+
+	return result;
+}
+
+
+	
+	
+/**
  * Checks if the move is possible
  * @param from location of the piece
  * @param to destination where should be piece moved
  * @return true when the move is legal, otherwise false
  */
-bool BoardController::legal_move(coord_t from, coord_t to)
+bool BoardController::legal_move(int from, int to)
 {
-	vector<coord_t> moves = piece_moves(from);
-	vector<coord_t>::iterator it;
+	vector<int> moves = piece_moves(from);
+	vector<int>::iterator it;
 	for(it = moves.begin(); it != moves.end(); it++)
 	{
-		if(((*it).row == to.row) && ((*it).col == to.col))
+		if(*it == to)
 			break;
 	}
 
 	if(it != moves.end())
 		return true;
-	
+
 	return false;
 }
 
 /**
  * Moves the piece and records the move
  *
- * @param from starting position index
- * @param to destination index
+ * @param f starting position index
+ * @param t destination index
  * @return true on successfull move, otherwise false
  */
-bool BoardController::make_move(int from, int to)
+int BoardController::make_move(int from, int to)
 {	
-	coord_t f = make_coord(from/ROWS, from%ROWS);
-	coord_t t = make_coord(to/ROWS, to%ROWS);
-	if(!legal_move(f, t)) // || king_checked(f, t))
-		return false;
+	if(!try_move(from, to))
+		return ILLEGALMOVE;
 
-	move_t m = { board[f.row][f.col],
-					 board[t.row][t.col],
-					 f,
-					 t };
+	move_t m = { board[from],
+					 board[to],
+					 from,
+					 to };
 	
-	board[t.row][t.col] = board[f.row][f.col];
-	board[f.row][f.col] = EMPTY;
+	board[to] = board[from];
+	board[from] = EMPTY;
 	game_moves.push_back(m);
 
-	if(board[t.row][t.col] == 'k') {
-		black_king.row = t.row;
-		black_king.col = t.col;
-	} else if (board[t.row][t.col] == 'K') {
-		white_king.row = t.row;
-		white_king.col = t.col;
-	}
+	if(board[to] == 'k') 
+		black_king = to;
+	else if (board[to] == 'K') 
+		white_king = to;
 
-
-	int kc = (get_color(t) == WHITE) ? WHITE : BLACK;
-	if(king_checked(kc)) {
-		undo_move();
-		return false;
+	int oc = (get_color(to) == WHITE) ? BLACK : WHITE;	
+	vector<move_t> aom = all_moves(oc);
+	if(king_checked(oc)) {
+		if(aom.empty())
+			return MATE;
+		else
+			return CHECK;
+	} else if(aom.empty()) {
+		return DRAW;
 	}
 		
-	return true;
+	return LEGALMOVE;
 }
 
 /**
@@ -361,16 +399,13 @@ int BoardController::undo_move()
 		return -1;
 
 	move_t m = game_moves.back();
-	board[m.from.row][m.from.col] = m.piece_from;
-	board[m.to.row][m.to.col] = m.piece_to;
+	board[m.from] = m.piece_from;
+	board[m.to] = m.piece_to;
 
-	if(board[m.from.row][m.from.col] == 'k') {
-		black_king.row = m.from.row;
-		black_king.col = m.from.col;
-	} else if(board[m.from.row][m.from.col] == 'K') {
-		white_king.row = m.from.row;
-		white_king.col = m.from.col;
-	}
+	if(board[m.from] == 'k') 
+		black_king = m.from;
+	else if(board[m.from] == 'K') 
+		white_king = m.from;
 
 	game_moves.pop_back();
 	return 1;
@@ -380,12 +415,7 @@ void BoardController::print_board()
 {
 	for(int i = 0; i < ROWS; i++) {
 		for(int j = 0; j < COLUMNS; j++) 
-			cout << "|" << board[i][j];
+			cout << "|" << board[8*i + j];
 		cout << "|" << endl;
 	}
-}
-
-coord_t BoardController::make_coord(int r, int c) 
-{
-	return {r, c};
 }
