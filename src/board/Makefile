@@ -3,13 +3,13 @@ CCFLAGS=-std=c++11 -Wall -Wextra -pedantic
 
 all: test
 
-test: test.o board_controller.o 
+test: test.o board.o 
 	$(CC) $(CCFLAGS) $^ -o $@
 
-test.o: test.cc board_controller.h
+test.o: test.cc board.h
 	$(CC) $(CCFLAGS) -c $< -o $@
 
-board_controller.o: board_controller.cc board_controller.h types.h
+board.o: board.cc board.h types.h
 	$(CC) $(CCFLAGS) -c $< -o $@	
 
 .PHONY: clean

@@ -3,11 +3,15 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = qt
+TARGET = chessqt 
 INCLUDEPATH += .
+OBJECTS_DIR = ../../obj
+DESTDIR = ../..
+MOC_DIR = moc_files
+RCC_DIR = resources
 QT += widgets
 
 # Input
-HEADERS += chess_board.h field.h main_window.h ../game_logic/types.h ../game_logic/board_controller.h
-SOURCES += chess_board.cc field.cc main.cc main_window.cc ../game_logic/board_controller.cc
+HEADERS += chess_board.h field.h main_window.h ../board/types.h ../board/board.h
+SOURCES += chess_board.cc field.cc main.cc main_window.cc ../board/board.cc
 RESOURCES += application.qrc

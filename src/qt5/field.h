@@ -2,6 +2,7 @@
 #define FIELD_H
 
 #include <QLabel>
+#include <QMouseEvent>
 
 class Field : public QLabel {
 	Q_OBJECT

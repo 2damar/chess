@@ -1,14 +1,14 @@
-#include <QGridLayout>
+#include <QPointer>
+#include <QString>
 #include "chess_board.h"
-#include <iostream>
 
 QSize field_size(60,60);
 
 ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
 {
-	Field *field;
-	BoardController board_controller;
-	QGridLayout *layout = new QGridLayout;
+	QPointer<Field> field;
+	board = new Board();
+	layout = new QGridLayout;
 	layout->setSpacing(0);
 	
 	for(int i = 0; i < ROWS; i++)
@@ -30,28 +30,35 @@ ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
 
 	setLayout(layout);
 }
-	
-void ChessBoard::set_pieces()
+
+void ChessBoard::start_game()
+{
+	board->set_pieces();
+	display();
+}
+
+void ChessBoard::display()
 {
 	QPixmap piece_pic(field_size);
-	std::string s;
-	for(int i = 0; i < 8; i++)
-		for(int j = 0; j < 8; j++) {
-			s = board_controller.get_field(i*8 + j);
-			if(s != "0") {
-				s = ":/png/" + s + ".png";
-				piece_pic.load(s.c_str());
-				fields[i*8 + j]->setPixmap(piece_pic);
-			}
-				
+	QString s;
+	for(int i = 0; i < ROWS*COLUMNS; i++) {
+		s = board->get_field(i);
+		fields[i]->clear();
+		if(s != "0") {
+			s = ":/png/" + s + ".png";
+			piece_pic.load(s);
+			fields[i]->setPixmap(piece_pic);
+		} else {
+			fields[i]->clear();			
 		}
+	}
 }
 
 void ChessBoard::field_clicked() 
 {	
 	static int from = -1;
-	Field* f = qobject_cast<Field*>(sender());
-	if((from == -1) && (board_controller.get_field(f->get_coord()) != EMPTY)) {
+	QPointer<Field> f = qobject_cast<Field*>(sender());
+	if((from == -1) && (board->get_field(f->get_coord()) != EMPTY)) {
 		from = f->get_coord();
 	} else if(from != -1) {
 		move_piece(from, f->get_coord());
@@ -61,46 +68,39 @@ void ChessBoard::field_clicked()
 
 bool ChessBoard::move_piece(int from, int to)
 {	
-	QPixmap piece_pic(field_size);
-	std::string p;
-
-	int move = board_controller.make_move(from, to);
-	if(move != ILLEGALMOVE) {
-		fields[from]->clear();
-		p = board_controller.get_field(to);
-		p = ":/png/" + p + ".png";
-		piece_pic.load(p.c_str());
-		fields[to]->setPixmap(piece_pic);
-	}
+	int move = board->make_move(from, to);
+	display();
 
 	switch(move) {
-		case LEGALMOVE:
-			std::cout << "LEGAL" << std::endl;
+		case REGULARMOVE:
 			return true;	
 		case CHECK:
-			std::cout << "CHECK" << std::endl;
 			return true;
 		case MATE:
-			std::cout << "MATE" << std::endl;
 			return true;
 		case DRAW:
-			std::cout << "DRAW" << std::endl;
 			return true;
 		case ILLEGALMOVE:
-			std::cout << "ILLEGALMOVE" << std::endl;
 			break;
 		default:
-			std::cout << "SOMETHING WRONG!!!" << std::endl;
 			break;
 	}
-
-
 	return false;
 }
 	
+int ChessBoard::undo_move()
+{
+	//board->undo_move();
+	display();
+	return 0;
+}
 
-
-
+ChessBoard::~ChessBoard()
+{
+	delete board;
+//	for(int i = ROWS*COLUMNS - 1; i >= 0; i--)
+//		delete fields[i];
+}
 
 
 
