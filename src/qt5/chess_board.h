@@ -18,7 +18,7 @@ class ChessBoard : public QWidget {
 public:
 	ChessBoard(QWidget* parent = 0, Qt::WindowFlags f = 0);
 	void start_game();
-	int undo_move();
+//	int undo_move();
 	void display();
 	~ChessBoard();
 

@@ -31,7 +31,7 @@ public:
 
 	~Board(){};
 
-private:
+//private:
 
 	std::string board;
 	int white_king;

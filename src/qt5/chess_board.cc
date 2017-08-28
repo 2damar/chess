@@ -2,6 +2,9 @@
 #include <QString>
 #include "chess_board.h"
 
+#include <iostream>
+#include <string>
+
 QSize field_size(60,60);
 
 ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
@@ -48,9 +51,7 @@ void ChessBoard::display()
 			s = ":/png/" + s + ".png";
 			piece_pic.load(s);
 			fields[i]->setPixmap(piece_pic);
-		} else {
-			fields[i]->clear();			
-		}
+		}	
 	}
 }
 
@@ -88,16 +89,16 @@ bool ChessBoard::move_piece(int from, int to)
 	return false;
 }
 	
-int ChessBoard::undo_move()
+/*int ChessBoard::undo_move()
 {
 	//board->undo_move();
 	display();
 	return 0;
-}
+}*/
 
 ChessBoard::~ChessBoard()
 {
-	delete board;
+//	delete board;
 //	for(int i = ROWS*COLUMNS - 1; i >= 0; i--)
 //		delete fields[i];
 }

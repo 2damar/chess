@@ -571,7 +571,7 @@ vector<int> Board::rook_moves(int position)
 	int dest = position + UP;
 
 	// up 
-	while(row-- >= 0) {
+	while(--row >= 0) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += UP;
@@ -584,7 +584,7 @@ vector<int> Board::rook_moves(int position)
 	row = position / ROWS;
 	dest = position + DOWN;
 	// down
-	while(row++ < ROWS) {
+	while(++row < ROWS) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += DOWN;
@@ -597,7 +597,7 @@ vector<int> Board::rook_moves(int position)
 	int col = position % ROWS;
 	dest = position + LEFT;
 	// left
-	while(col-- >= 0) {
+	while(--col >= 0) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += LEFT;
@@ -610,7 +610,7 @@ vector<int> Board::rook_moves(int position)
 	col = position % ROWS;
 	dest = position + RIGHT;
 	//right
-	while(col++ < COLUMNS) {
+	while(++col < COLUMNS) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += RIGHT;
@@ -685,7 +685,7 @@ vector<int> Board::bishop_moves(int position)
 	
 	// up right
 	int dest = position + UP + RIGHT;
-	while((row-- >= 0) && (col++ < COLUMNS)) {
+	while((--row >= 0) && (++col < COLUMNS)) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += UP + RIGHT;
@@ -699,7 +699,7 @@ vector<int> Board::bishop_moves(int position)
 	col = position % ROWS;
 	// down right
 	dest = position + DOWN + RIGHT;
-	while((row++ < ROWS) && (col++ < COLUMNS)) {
+	while((++row < ROWS) && (++col < COLUMNS)) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += DOWN + RIGHT;
@@ -713,7 +713,7 @@ vector<int> Board::bishop_moves(int position)
 	col = position % ROWS;
 	// down left
 	dest = position + DOWN + LEFT;
-	while((row++ < ROWS) && (col-- >= 0)) {
+	while((++row < ROWS) && (--col >= 0)) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += DOWN + LEFT;
@@ -727,7 +727,7 @@ vector<int> Board::bishop_moves(int position)
 	col = position % ROWS;
 	// up left
 	dest = position + UP + LEFT;
-	while((row-- >= 0) && (col-- >= 0)) {
+	while((--row >= 0) && (--col >= 0)) {
 		if(board[dest] == EMPTY) {
 			moves.push_back(dest);
 			dest += UP + LEFT;

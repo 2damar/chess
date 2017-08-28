@@ -17,7 +17,7 @@ public:
 protected:
 	void closeEvent(QCloseEvent* event);
 
-private slots:
+/*private slots:
 	void start_new();
 	void load();
 	bool save();
@@ -31,9 +31,9 @@ private:
 	void start_new_game();
 	void load_game(const QString& file_name);
 	bool save_game(const QString& file_name);
-
+*/
 	ChessBoard* chess_board;
-	QMenu* file_menu;
+/*	QMenu* file_menu;
 	QMenu* edit_menu;
 	QMenu* help_menu;
 
@@ -41,7 +41,8 @@ private:
 	QAction* load_act;
 	QAction* save_act;
 	QAction* undo_act;
-	QAction* about_act;
+	QAction* about_act; 
+	*/
 };
 
 #endif
