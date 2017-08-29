@@ -350,8 +350,8 @@ int Board::try_move(int from, int to)
 
 	if(result)  // king is checked
 		return ILLEGALMOVE;
-
-	if(is_pawn(board[to])) { // pawn forward by to, for setting enpassant
+	
+	if(is_pawn(board[from])) { // pawn forward by to, for setting enpassant
 		if((from == to + 2*UP) || (from == to + 2*DOWN))
 			return PAWNTWOFORWARD;
 	}
@@ -444,6 +444,7 @@ int Board::make_move(int from, int to)
 					break;
 	}
 
+	cout << mv  << " : " << enpassant << " : " << to << endl;
 	// if king moved, update king position and disallow castling
 	if(board[to] == 'k') {
 		black_king = to;
