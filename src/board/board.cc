@@ -330,8 +330,6 @@ int Board::try_move(int from, int to)
 				return ILLEGALMOVE;
 		}
 
-		if((from == to + 2*UP) || (from == to + 2*DOWN))
-			return PAWNTWOFORWARD;
 	}
 
 	// regular move
@@ -352,6 +350,11 @@ int Board::try_move(int from, int to)
 
 	if(result)  // king is checked
 		return ILLEGALMOVE;
+
+	if(is_pawn(board[to])) { // pawn forward by to, for setting enpassant
+		if((from == to + 2*UP) || (from == to + 2*DOWN))
+			return PAWNTWOFORWARD;
+	}
 
 	return REGULARMOVE;
 }
@@ -469,13 +472,13 @@ int Board::make_move(int from, int to)
 	}
 
 	// automaticaly promote pawn to a queen
-	if((board[to] == 'p') && (to == ROWS - 1)) {
+	if((board[to] == 'p') && (to / ROWS  == ROWS - 1)) {
 		board[to] = 'q';
 		// give option to promote to something else
 		// return PAWNPROMOTION
 	}
 
-	if((board[to] == 'P') && (to == 0)) {
+	if((board[to] == 'P') && (to/ROWS == 0)) {
 		board[to] = 'Q';
 		// give option to promote to something else
 		// return PAWNPROMOTION
