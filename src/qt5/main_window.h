@@ -2,7 +2,7 @@
 #define MAIN_WINDOW_H
 
 #include <QMainWindow>
-#include "chess_board.h"
+#include "chess_window.h"
 
 class QAction;
 class QMenu;
@@ -32,7 +32,7 @@ private:
 	void load_game(const QString& file_name);
 	bool save_game(const QString& file_name);
 */
-	ChessBoard* chess_board;
+	ChessWindow* chess_window;
 /*	QMenu* file_menu;
 	QMenu* edit_menu;
 	QMenu* help_menu;

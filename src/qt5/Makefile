@@ -49,20 +49,24 @@ OBJECTS_DIR   = ../../obj/
 ####### Files
 
 SOURCES       = chess_board.cc \
+		chess_window.cc \
 		field.cc \
 		main.cc \
 		main_window.cc \
 		../board/board.cc resources/qrc_application.cpp \
 		moc_files/moc_chess_board.cpp \
+		moc_files/moc_chess_window.cpp \
 		moc_files/moc_field.cpp \
 		moc_files/moc_main_window.cpp
 OBJECTS       = ../../obj/chess_board.o \
+		../../obj/chess_window.o \
 		../../obj/field.o \
 		../../obj/main.o \
 		../../obj/main_window.o \
 		../../obj/board.o \
 		../../obj/qrc_application.o \
 		../../obj/moc_chess_board.o \
+		../../obj/moc_chess_window.o \
 		../../obj/moc_field.o \
 		../../obj/moc_main_window.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -126,10 +130,12 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		qt.pro chess_board.h \
+		chess_window.h \
 		field.h \
 		main_window.h \
 		../board/types.h \
 		../board/board.h chess_board.cc \
+		chess_window.cc \
 		field.cc \
 		main.cc \
 		main_window.cc \
@@ -292,8 +298,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents application.qrc $(DISTDIR)/
-	$(COPY_FILE) --parents chess_board.h field.h main_window.h ../board/types.h ../board/board.h $(DISTDIR)/
-	$(COPY_FILE) --parents chess_board.cc field.cc main.cc main_window.cc ../board/board.cc $(DISTDIR)/
+	$(COPY_FILE) --parents chess_board.h chess_window.h field.h main_window.h ../board/types.h ../board/board.h $(DISTDIR)/
+	$(COPY_FILE) --parents chess_board.cc chess_window.cc field.cc main.cc main_window.cc ../board/board.cc $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -336,9 +342,9 @@ resources/qrc_application.cpp: application.qrc \
 		../../png/b.png
 	/usr/lib/x86_64-linux-gnu/qt5/bin/rcc -name application application.qrc -o resources/qrc_application.cpp
 
-compiler_moc_header_make_all: moc_files/moc_chess_board.cpp moc_files/moc_field.cpp moc_files/moc_main_window.cpp
+compiler_moc_header_make_all: moc_files/moc_chess_board.cpp moc_files/moc_chess_window.cpp moc_files/moc_field.cpp moc_files/moc_main_window.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_files/moc_chess_board.cpp moc_files/moc_field.cpp moc_files/moc_main_window.cpp
+	-$(DEL_FILE) moc_files/moc_chess_board.cpp moc_files/moc_chess_window.cpp moc_files/moc_field.cpp moc_files/moc_main_window.cpp
 moc_files/moc_chess_board.cpp: ../board/types.h \
 		../board/board.h \
 		field.h \
@@ -346,11 +352,20 @@ moc_files/moc_chess_board.cpp: ../board/types.h \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/moc
 	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/mil/src/CPP/chess/src/qt5 -I/home/mil/src/CPP/chess/src/qt5 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/6 -I/usr/include/x86_64-linux-gnu/c++/6 -I/usr/include/c++/6/backward -I/usr/lib/gcc/x86_64-linux-gnu/6/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include chess_board.h -o moc_files/moc_chess_board.cpp
 
+moc_files/moc_chess_window.cpp: chess_board.h \
+		../board/types.h \
+		../board/board.h \
+		field.h \
+		chess_window.h \
+		/usr/lib/x86_64-linux-gnu/qt5/bin/moc
+	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/mil/src/CPP/chess/src/qt5 -I/home/mil/src/CPP/chess/src/qt5 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/6 -I/usr/include/x86_64-linux-gnu/c++/6 -I/usr/include/c++/6/backward -I/usr/lib/gcc/x86_64-linux-gnu/6/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include chess_window.h -o moc_files/moc_chess_window.cpp
+
 moc_files/moc_field.cpp: field.h \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/moc
 	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/mil/src/CPP/chess/src/qt5 -I/home/mil/src/CPP/chess/src/qt5 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/6 -I/usr/include/x86_64-linux-gnu/c++/6 -I/usr/include/c++/6/backward -I/usr/lib/gcc/x86_64-linux-gnu/6/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include field.h -o moc_files/moc_field.cpp
 
-moc_files/moc_main_window.cpp: chess_board.h \
+moc_files/moc_main_window.cpp: chess_window.h \
+		chess_board.h \
 		../board/types.h \
 		../board/board.h \
 		field.h \
@@ -378,10 +393,18 @@ compiler_clean: compiler_rcc_clean compiler_moc_header_clean
 		field.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../obj/chess_board.o chess_board.cc
 
+../../obj/chess_window.o: chess_window.cc chess_window.h \
+		chess_board.h \
+		../board/types.h \
+		../board/board.h \
+		field.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../obj/chess_window.o chess_window.cc
+
 ../../obj/field.o: field.cc field.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../obj/field.o field.cc
 
 ../../obj/main.o: main.cc main_window.h \
+		chess_window.h \
 		chess_board.h \
 		../board/types.h \
 		../board/board.h \
@@ -389,6 +412,7 @@ compiler_clean: compiler_rcc_clean compiler_moc_header_clean
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../obj/main.o main.cc
 
 ../../obj/main_window.o: main_window.cc main_window.h \
+		chess_window.h \
 		chess_board.h \
 		../board/types.h \
 		../board/board.h \
@@ -404,6 +428,9 @@ compiler_clean: compiler_rcc_clean compiler_moc_header_clean
 
 ../../obj/moc_chess_board.o: moc_files/moc_chess_board.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../obj/moc_chess_board.o moc_files/moc_chess_board.cpp
+
+../../obj/moc_chess_window.o: moc_files/moc_chess_window.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../obj/moc_chess_window.o moc_files/moc_chess_window.cpp
 
 ../../obj/moc_field.o: moc_files/moc_field.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../obj/moc_field.o moc_files/moc_field.cpp

@@ -12,6 +12,6 @@ RCC_DIR = resources
 QT += widgets
 
 # Input
-HEADERS += chess_board.h field.h main_window.h ../board/types.h ../board/board.h
-SOURCES += chess_board.cc field.cc main.cc main_window.cc ../board/board.cc
+HEADERS += chess_board.h chess_window.h field.h main_window.h ../board/types.h ../board/board.h
+SOURCES += chess_board.cc chess_window.cc field.cc main.cc main_window.cc ../board/board.cc
 RESOURCES += application.qrc

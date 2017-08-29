@@ -11,7 +11,7 @@ ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
 {
 	QPointer<Field> field;
 	board = new Board();
-	layout = new QGridLayout;
+	QGridLayout* layout = new QGridLayout;
 	layout->setSpacing(0);
 	
 	for(int i = 0; i < ROWS; i++)
@@ -32,6 +32,17 @@ ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
 		}
 
 	setLayout(layout);
+}
+
+void ChessBoard::set_clocks(QLCDNumber* wc, QLCDNumber* bc)
+{
+	white_clock = wc;
+	black_clock = bc;
+}
+
+void ChessBoard::set_history(QPlainTextEdit* mh)
+{
+	moves_history = mh;
 }
 
 void ChessBoard::start_game()

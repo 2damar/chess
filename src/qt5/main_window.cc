@@ -5,10 +5,10 @@
 MainWindow::MainWindow()
 {
 	//QSize max(480, 480);
-	chess_board = new ChessBoard();
+	chess_window = new ChessWindow();
 	//chess_board->setMaximumSize(max);
-	chess_board->start_game();
-	setCentralWidget(chess_board);
+//	chess_board->start_game();
+	setCentralWidget(chess_window);
 //	create_actions();
 //	create_menus();
 }
