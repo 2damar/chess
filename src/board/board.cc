@@ -444,7 +444,6 @@ int Board::make_move(int from, int to)
 					break;
 	}
 
-	cout << mv  << " : " << enpassant << " : " << to << endl;
 	// if king moved, update king position and disallow castling
 	if(board[to] == 'k') {
 		black_king = to;
