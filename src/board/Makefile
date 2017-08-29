@@ -1,18 +1,13 @@
 CC=g++
 CCFLAGS=-std=c++11 -Wall -Wextra -pedantic
+OBJ_DIR=../../obj
 
-all: test
-
-test: test.o board.o 
-	$(CC) $(CCFLAGS) $^ -o $@
-
-test.o: test.cc board.h
-	$(CC) $(CCFLAGS) -c $< -o $@
+all: board.o
 
 board.o: board.cc board.h types.h
-	$(CC) $(CCFLAGS) -c $< -o $@	
+	$(CC) $(CCFLAGS) -c $< -o $(OBJ_DIR)/$@	
 
 .PHONY: clean
 
 clean:
-	rm -f *.o
+	rm -f $(OBJ_DIR)/board.o

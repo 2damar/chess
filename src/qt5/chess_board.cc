@@ -7,6 +7,9 @@
 
 QSize field_size(60,60);
 
+/**
+ * Initializes empty board
+ */
 ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
 {
 	QPointer<Field> field;
@@ -30,27 +33,49 @@ ChessBoard::ChessBoard(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)
 			layout->addWidget(field, i, j);
 		 
 		}
-
+	game_stopped = false;
 	setLayout(layout);
 }
 
-void ChessBoard::set_clocks(QLCDNumber* wc, QLCDNumber* bc)
+
+/**
+ * Sets clocks for both players
+ */
+void ChessBoard::set_clocks(ChessClock* wc, ChessClock* bc)
 {
 	white_clock = wc;
 	black_clock = bc;
 }
 
+/**
+ * Sets textfield for writing the moves
+ */
 void ChessBoard::set_history(QPlainTextEdit* mh)
 {
-	moves_history = mh;
+	moves_record = mh;
 }
 
+/**
+ * Sets status label for current game status
+ */
+void ChessBoard::set_status(QLabel* s)
+{
+	status_label = s;
+}
+
+/**
+ * Puts pieces on the board and starts the game
+ */
 void ChessBoard::start_game()
 {
 	board->set_pieces();
+	active_player = WHITE;
 	display();
 }
 
+/**
+ * Displays the board, needs to be called after any change to the board.
+ */
 void ChessBoard::display()
 {
 	QPixmap piece_pic(field_size);
@@ -66,52 +91,101 @@ void ChessBoard::display()
 	}
 }
 
+/**
+ * Evaluates the field that was clicked.
+ * And potentially makes the move.
+ */
 void ChessBoard::field_clicked() 
-{	
+{
+	if(game_stopped)
+		return;
 	static int from = -1;
 	QPointer<Field> f = qobject_cast<Field*>(sender());
 	if((from == -1) && (board->get_field(f->get_coord()) != EMPTY)) {
 		from = f->get_coord();
+//		f->setStyleSheet("QLabel { background-color : green; }");
 	} else if(from != -1) {
 		move_piece(from, f->get_coord());
 		from = -1;
 	}
 }
 
-bool ChessBoard::move_piece(int from, int to)
-{	
-	int move = board->make_move(from, to);
-	display();
-
-	switch(move) {
-		case REGULARMOVE:
-			return true;	
-		case CHECK:
-			return true;
-		case MATE:
-			return true;
-		case DRAW:
-			return true;
-		case ILLEGALMOVE:
-			break;
-		default:
-			break;
+/**
+ * Switches the active player after succesfull move
+ */
+void ChessBoard::switch_player()
+{
+	if(active_player == WHITE) {
+		black_clock->start();
+		white_clock->stop();
+		active_player = BLACK; 
+	} else {
+		white_clock->start();
+		black_clock->stop();
+		active_player = WHITE;
 	}
-	return false;
+}
+
+/**
+ * Moves piece on the board, updates the status,
+ * records the move and switches the player
+ *
+ * @param from current position
+ * @param to destination
+ * @return flag for game status
+ */
+bool ChessBoard::move_piece(int from, int to)
+{
+	int move = ILLEGALMOVE;
+	char piece_taken = board->get_field(to);
+	if(board->get_color(from) == active_player) 
+		move = board->make_move(from, to);
+
+	if(move == ILLEGALMOVE)
+		return false;
+
+	update_status(from, to, piece_taken, move);
+	switch_player();
+	display();
+	
+	if((move == MATE) || (move == DRAW))
+		stop_game();
+
+	return true;
+}
+
+void ChessBoard::update_status(int from, int to, char taken, int move)
+{
+	QString s;
+	s = board->get_field(to);
+	s = s + tr(" from ") + QString::number(from) + tr(" moves to ") + QString::number(to);
+	if(taken != '0') 
+		s = s + tr(" and takes ") + taken;
+	moves_record->appendPlainText(s);
+	if(move == MATE)
+		s = tr("MATE");
+	else if(move == CHECK)
+		s = tr("CHECK");
+	else if(move == DRAW)
+		s = tr("DRAW");
+	else
+		s = (active_player == WHITE) ? tr("Black's turn") : tr("White's turn");
+	
+	status_label->setText(s);
+
+}
+
+
+void ChessBoard::stop_game()
+{
+	white_clock->stop();
+	black_clock->stop();
+	game_stopped = true;
 }
 	
-/*int ChessBoard::undo_move()
-{
-	//board->undo_move();
-	display();
-	return 0;
-}*/
-
 ChessBoard::~ChessBoard()
 {
-//	delete board;
-//	for(int i = ROWS*COLUMNS - 1; i >= 0; i--)
-//		delete fields[i];
+	delete board;
 }
 
 

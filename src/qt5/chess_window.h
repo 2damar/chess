@@ -4,8 +4,9 @@
 #include <QWidget>
 #include <QPointer>
 #include <QPlainTextEdit>
-#include <QLCDNumber>
+
 #include "chess_board.h"
+#include "chess_clock.h"
 
 class ChessWindow : public QWidget {
 	Q_OBJECT
@@ -15,8 +16,9 @@ public:
 
 private:
 	ChessBoard* chess_board;
-	QLCDNumber* white_clock;
-	QLCDNumber* black_clock;
+	ChessClock* white_clock;
+	ChessClock* black_clock;
+	QLabel* game_status;
 	QPlainTextEdit* moves;
 };
 

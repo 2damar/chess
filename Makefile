@@ -1,5 +1,5 @@
 MAKE = make
-SUBDIRS = src/qt5
+SUBDIRS = src/board src/qt5
 
 all: $(SUBDIRS)
 
@@ -8,5 +8,7 @@ $(SUBDIRS):
 
 .PHONY: all $(SUBDIRS)
 
+
 clean: 
-	$(MAKE) clean -C $(SUBDIRS)
+	$(MAKE) clean -C src/board
+	$(MAKE) clean -C src/qt5
