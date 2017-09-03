@@ -1,6 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <string>
 
 #define ROWS 8
 #define COLUMNS 8
@@ -24,5 +25,17 @@
 #define CHECK 7 
 #define MATE 8
 #define DRAW 9
+
+#define WKCASTLING 0x01
+#define WQCASTLING 0x02
+#define BKCASTLING 0x04
+#define BQCASTLING 0x08
+
+typedef struct board_features {
+	std::string board;           ///< board
+	unsigned cf;					  ///< castling flags
+	int ep;							  ///< en passant
+	int ap;							  ///< active player
+} board_features_t;
 
 #endif

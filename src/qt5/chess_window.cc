@@ -33,4 +33,12 @@ ChessWindow::ChessWindow(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f
 	setLayout(main_layout);
 }
 
+void ChessWindow::start_game()
+{
+	chess_board->start_game();
+}
 
+void ChessWindow::undo_move()
+{
+	chess_board->undo_move();
+}

@@ -69,6 +69,7 @@ void ChessBoard::set_status(QLabel* s)
 void ChessBoard::start_game()
 {
 	board->set_pieces();
+	prev_moves.push_back(board->get_board_features());
 	active_player = WHITE;
 	display();
 }
@@ -144,8 +145,15 @@ bool ChessBoard::move_piece(int from, int to)
 	if(move == ILLEGALMOVE)
 		return false;
 
+
 	update_status(from, to, piece_taken, move);
 	switch_player();
+
+	// record move
+	board_features_t bf = board->get_board_features();
+	bf.ap = active_player;
+	prev_moves.push_back(bf);
+
 	display();
 	
 	if((move == MATE) || (move == DRAW))
@@ -175,6 +183,24 @@ void ChessBoard::update_status(int from, int to, char taken, int move)
 
 }
 
+int ChessBoard::undo_move()
+{
+	if(prev_moves.empty())
+		return -1;
+	prev_moves.pop_back();
+	if(prev_moves.empty())
+		return -1;
+	
+	board_features_t pb = prev_moves.back();
+	board->set_pieces(pb.board, pb.cf, pb.ep);
+	active_player = pb.ap;	
+	//start the right clock
+	switch_player();
+	switch_player();
+
+	display();
+	return 1;
+}
 
 void ChessBoard::stop_game()
 {

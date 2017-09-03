@@ -22,7 +22,7 @@ public:
 	void set_status(QLabel* s);
 	void start_game();
 	void stop_game();
-//	int undo_move();
+	int undo_move();
 	void display();
 	~ChessBoard();
 
@@ -32,6 +32,7 @@ private slots:
 private:
 	
 	QVector<QPointer<Field> > fields;
+	QVector<board_features_t> prev_moves;
 	Board* board;
 	int active_player;
 	bool game_stopped;

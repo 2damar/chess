@@ -8,8 +8,6 @@
 #include "types.h"
 
 typedef struct move {
-	char piece_from;
-	char piece_to;
 	int from;
 	int to;
 } move_t;
@@ -19,7 +17,7 @@ class Board {
 public:
 	Board();
 	void clear_board();
-	void set_pieces(std::string b = "");
+	void set_pieces(std::string b = "", unsigned cf = WKCASTLING | WQCASTLING | BKCASTLING | BQCASTLING, int ep = -1);
 	char get_field(int c);
 	int get_color(int c);
 	std::set<int> covered_fields(int color);
@@ -28,6 +26,7 @@ public:
 	int make_move(int from, int to);
 	bool king_checked(int color);
 	std::string get_board();
+	board_features_t get_board_features();
 
 	~Board(){};
 
@@ -37,12 +36,8 @@ public:
 	int white_king;
 	int black_king;
 	int enpassant;
-	int white_0_0;
-	int white_0_0_0;
-	int black_0_0;
-	int black_0_0_0;
+	unsigned castling_flags;
 
-//	std::vector<move_t> game_moves;
 	std::vector<int> pawn_moves(int position);
 	std::vector<int> rook_moves(int position);
 	std::vector<int> knight_moves(int position);

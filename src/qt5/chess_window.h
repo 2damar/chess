@@ -13,6 +13,8 @@ class ChessWindow : public QWidget {
 
 public: 
 	ChessWindow(QWidget* parent = 0, Qt::WindowFlags f = 0);
+	void start_game();
+	void undo_move();
 
 private:
 	ChessBoard* chess_board;

@@ -4,45 +4,45 @@
 
 MainWindow::MainWindow()
 {
-	//QSize max(480, 480);
+//	QSize max(480, 480);
 	chess_window = new ChessWindow();
-	//chess_board->setMaximumSize(max);
+//	chess_board->setMaximumSize(max);
 //	chess_board->start_game();
 	setCentralWidget(chess_window);
-//	create_actions();
-//	create_menus();
+	create_actions();
+	create_menus();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
 	// maybe save
-//	event->accept();
+	event->accept();
 }
 
 /**
  * Starts completely new game
  */
-/* void MainWindow::start_new() 
+ void MainWindow::start_new() 
 {
 	// maybe save
-	chess_board->start_game();
-}*/
+	chess_window->start_game();
+}
 
 /**
  * Loads game from file
  */
-/*void MainWindow::load() 
+void MainWindow::load() 
 {
 	// maybe save
 	QString file_name = QFileDialog::getOpenFileName(this);
 	if(!file_name.isEmpty())
 		load_game(file_name);
-}*/
+}
 
 /**
  * Save the current game to a file
  */
-/*bool MainWindow::save()
+bool MainWindow::save()
 {
 	QString file_name = QFileDialog::getSaveFileName(this);
 	if(file_name.isEmpty()) 
@@ -53,7 +53,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::undo()
 {
-	chess_board->undo_move();
+	chess_window->undo_move();
 }
 
 void MainWindow::about() 
@@ -113,4 +113,4 @@ bool MainWindow::save_game(const QString& file_name)
 {
 	// etc.
 	return false;
-}*/
+}

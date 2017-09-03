@@ -26,7 +26,7 @@ void Board::clear_board()
 }
 
 /**
- * Returns the current constelation of the board
+ * Returns the current board
  */
 string Board::get_board()
 {
@@ -34,18 +34,29 @@ string Board::get_board()
 }
 
 /**
- * Initializes the board with the pieces
+ * Return current board + castling flags + en passant field
+ */
+board_features_t Board::get_board_features()
+{
+	return {board, castling_flags, enpassant, WHITE};
+}
+
+/**
+ * Initializes the board with the pieces, and sets proper flags 
  * 
  * @param b board fields with pieces
+ * @param cf castling flags
+ * @param ep en passant
  */
-void Board::set_pieces(string b)
+void Board::set_pieces(string b, unsigned cf, int ep)
 {
 	if(b.size() != 64) 
 		board = "rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR";
 	else 
 		board = b;
-	white_0_0 = white_0_0_0 = black_0_0 = black_0_0_0 = true;
-	enpassant = -1;
+	
+	castling_flags = cf;
+	enpassant = ep;
 
 	white_king = board.find('K');
 	black_king = board.find('k');
@@ -188,7 +199,7 @@ vector<move_t> Board::all_moves(int color)
 			pm = piece_moves(i);
 			for(vector<int>::iterator it = pm.begin(); it != pm.end(); it++) {
 				if(try_move(i, *it)) 
-					am.push_back({board[i], board[*it], i, *it});
+					am.push_back({i, *it});
 			}
 		}
 	}
@@ -447,27 +458,27 @@ int Board::make_move(int from, int to)
 	// if king moved, update king position and disallow castling
 	if(board[to] == 'k') {
 		black_king = to;
-		black_0_0 = black_0_0_0 = false;
+		castling_flags &= ~(BKCASTLING | BQCASTLING);
 	}
 	else if (board[to] == 'K') {
 		white_king = to;
-		white_0_0 = white_0_0_0 = false;
+		castling_flags &= ~(WKCASTLING | WQCASTLING);
 	}
 
 	// if rook moved, disallow appropriate castling
 	if(board[to] == 'r' || board[to] == 'R') {
 		switch(from) {
 			case 0: //black queens rook
-				black_0_0_0 = false;
+				castling_flags &= ~BQCASTLING;
 				break;
 			case 7: // black kings rook
-				black_0_0 = false;
+				castling_flags &= ~BKCASTLING;
 				break;
 			case 56: // white queens rook
-				white_0_0_0 = false;
+				castling_flags &= ~WQCASTLING;
 				break;
 			case 63: // white kings rook
-				white_0_0 = false;
+				castling_flags &= ~WKCASTLING;
 		}
 	}
 
@@ -497,28 +508,6 @@ int Board::make_move(int from, int to)
 		
 	return REGULARMOVE;
 }
-
-/**
- * Undoes previous move
- * @return -1 if there is nomore move to undo, otherwise 1
- */
-/**int Board::undo_move()
-{
-	if(game_moves.empty())
-		return -1;
-
-	move_t m = game_moves.back();
-	board[m.from] = m.piece_from;
-	board[m.to] = m.piece_to;
-
-	if(board[m.from] == 'k') 
-		black_king = m.from;
-	else if(board[m.from] == 'K') 
-		white_king = m.from;
-
-	game_moves.pop_back();
-	return 1;
-}*/
 
 /**
  * Calculates all posible pawn moves
@@ -805,8 +794,10 @@ vector<int> Board::king_moves(int position)
 		moves.push_back(dest);
 
 	// castling
-	bool kc = (get_color(position) == WHITE) ? white_0_0 : black_0_0;
-	bool qc = (get_color(position) == WHITE) ? white_0_0_0 : black_0_0_0;
+	unsigned kc = (get_color(position) == WHITE) ? castling_flags & WKCASTLING 
+																: castling_flags & BKCASTLING;
+	unsigned qc = (get_color(position) == WHITE) ? castling_flags & WQCASTLING
+																: castling_flags & BQCASTLING;
 	
 	//king side
 	col = position % ROWS;
